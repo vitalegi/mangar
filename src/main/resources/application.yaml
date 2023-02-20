@@ -1,0 +1,72 @@
+spring:
+  security:
+
+    # authentication
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://www.googleapis.com/service_accounts/v1/jwk/securetoken%40system.gserviceaccount.com
+          issuer-uri: https://securetoken.google.com/budget-auth-71712
+          jws-algorithm: RS256
+
+  # database access
+  datasource:
+    url: jdbc:h2:./liquibase;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: ''
+
+# in memory
+#  datasource:
+#    url: jdbc:h2:./liquibase;DB_CLOSE_ON_EXIT=FALSE
+#    username: sa
+#    password: ''
+
+# local postgresql
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/budget
+#    username: postgres
+#    password: postgres
+
+  liquibase:
+    enabled: true
+    change-log: 'classpath:db/changelog/db.changelog-master.yaml'
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+      # if you want to use liquibase
+      # ddl-auto: validate
+
+      # if you want to let spring data update the db schema
+      # ddl-auto: update
+
+security:
+  cors:
+    allowedOrigins: http://localhost:9000
+    allowedMethods: GET, POST, PUT, DELETE
+    allowCredentials: true
+    allowedHeaders: Content-Type, Access-Control-Request-Method, Access-Control-Allow-Credentials, Access-Control-Allow-Origin, Access-Control-Allow-Headers, x-requested-with, Authorization, origin, accept
+
+log:
+  single-line: false
+  skip-classes: >
+    FastClassBySpringCGLIB,
+    EnhancerBySpringCGLIB,
+    java.lang.reflect.Method.invoke,
+    jdk.internal.reflect,
+    org.apache.catalina,
+    org.apache.coyote,
+    org.apache.tomcat,
+    org.springframework.aop.framework,
+    org.springframework.aop.aspectj,
+    org.springframework.cglib.proxy.MethodProxy.invoke,
+    org.springframework.security.web.FilterChainProxy,
+    org.springframework.web.filter.OncePerRequestFilter.doFilter,
+    org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke,
+    org.springframework.web.method.support.InvocableHandlerMethod,
+    org.springframework.web.servlet.mvc.method.annotation,
+    org.springframework.web.filter,
+    it.vitalegi.budget.metrics.PerformanceAspect.logExecutionTime
+
+metrics:
+  skipIfLessThan: 50
