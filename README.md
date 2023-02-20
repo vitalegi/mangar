@@ -4,6 +4,8 @@
 
 - JDK 11
 - Maven
+- Firefox browser
+- Firefox webdriver <https://github.com/mozilla/geckodriver/releases> in `PATH` variable
 
 ```
 $env:M2_HOME = 'C:\a\software\apache-maven-3.8.7-java11'
