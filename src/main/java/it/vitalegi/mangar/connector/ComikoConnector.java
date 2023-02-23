@@ -3,17 +3,19 @@ package it.vitalegi.mangar.connector;
 import it.vitalegi.mangar.config.Mangar;
 import it.vitalegi.mangar.model.Chapter;
 import it.vitalegi.mangar.model.Series;
+import it.vitalegi.mangar.model.Volume;
 import it.vitalegi.mangar.service.StorageService;
+import it.vitalegi.mangar.util.ImageUtil;
 import lombok.extern.log4j.Log4j2;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Log4j2
 public class ComikoConnector extends SeleniumConnector {
-    static final String DEFAULT_VOLUME_ID = "99";
     static final Pattern VOLUME_AND_CHAPTER = Pattern.compile("^Volume (.*) Chapter (.*)$");
     static final Pattern CHAPTER = Pattern.compile("^Chapter (.*)$");
 
@@ -31,13 +33,34 @@ public class ComikoConnector extends SeleniumConnector {
         get(config.getUri());
         WebElement chapters = getByClassUnique("main");
         registerChapters(chapters);
-        series.getChapters()
-              .forEach(c -> log.info("ID={}, NAME={}, VOLUME={}, URL={}", c.getId(), c.getName(), c.getVolume()
-                                                                                                   .getId(),
-                      c.getUrl()));
-
         storageService.createDirs(config, series);
-        registerImages(series.getChapters().get(0));
+
+        series.getVolumes().forEach(this::downloadImages);
+    }
+
+    protected void downloadImage(Volume volume, Chapter chapter, int index, WebElement imageTag) {
+        String imageUrl = imageTag.getAttribute("src");
+        Path path = storageService.getImagePath(config, volume, chapter, index, "png");
+        log.info("Download in path {} image {}", path, imageUrl);
+        var image = ImageUtil.downloadImage(imageUrl);
+        ImageUtil.saveImage(image, "png", path);
+        log.info("Download completed.");
+    }
+
+    protected void downloadImages(Volume volume) {
+        log.debug("Download images of volume {}", volume.getId());
+        volume.getChapters().forEach(c -> downloadImages(volume, c));
+    }
+
+    protected void downloadImages(Volume volume, Chapter chapter) {
+        log.debug("Download images of chapter {}, vol {}, url={}", chapter.getId(), volume.getId(), chapter.getUrl());
+        get(chapter.getUrl());
+        var viewer = findUnique(By.id("viewer"));
+        var images = findAll(viewer, By.tagName("img"));
+        log.info("Chapter {} contains {} images", chapter.getId(), images.size());
+        for (int i = 0; i < images.size(); i++) {
+            downloadImage(volume, chapter, i, images.get(i));
+        }
     }
 
     protected String getChapterId(WebElement chapter) {
@@ -47,13 +70,13 @@ public class ComikoConnector extends SeleniumConnector {
     protected String getChapterId(String label) {
         Matcher matcher = VOLUME_AND_CHAPTER.matcher(label);
         if (matcher.find()) {
-            return matcher.group(2);
+            return applyOverrideRulesToChapterId(matcher.group(2));
         }
         matcher = CHAPTER.matcher(label);
         if (matcher.find()) {
-            return matcher.group(1);
+            return applyOverrideRulesToChapterId(matcher.group(1));
         }
-        return "0";
+        return applyOverrideRulesToChapterId(null);
     }
 
     protected String getChapterName(WebElement chapter) {
@@ -87,10 +110,10 @@ public class ComikoConnector extends SeleniumConnector {
         Matcher matcher = VOLUME_AND_CHAPTER.matcher(label);
         if (matcher.find()) {
             log.debug("found {}", matcher.group(1));
-            return matcher.group(1);
+            return applyOverrideRulesToVolumeId(matcher.group(1));
         }
         log.debug("Not found");
-        return DEFAULT_VOLUME_ID;
+        return applyOverrideRulesToVolumeId(null);
     }
 
     protected void registerChapter(WebElement entry) {
@@ -100,6 +123,7 @@ public class ComikoConnector extends SeleniumConnector {
         String chapterName = getChapterName(entry);
         series.addVolume(volumeId);
         series.addChapter(chapterId, chapterName, url, series.getVolume(volumeId));
+        log.info("Registered chapter {}", chapterId);
     }
 
     protected void registerChapters(WebElement element) {
@@ -111,22 +135,6 @@ public class ComikoConnector extends SeleniumConnector {
             } catch (Exception e) {
                 throw new RuntimeException("Error processing element " + i);
             }
-        }
-    }
-
-    protected void registerImage(Chapter chapter, int index, WebElement imageTag) {
-        String imageUrl = imageTag.getAttribute("src");
-        log.info("Download {}", imageUrl);
-    }
-
-    protected void registerImages(Chapter chapter) {
-        log.debug("Register images of chapter {} ({})", chapter.getId(), chapter.getUrl());
-        get(chapter.getUrl());
-        var viewer = findUnique(By.id("viewer"));
-        var images = findAll(viewer, By.tagName("img"));
-        log.info("Chapter {} contains {} images", chapter.getId(), images.size());
-        for (int i = 0; i < images.size(); i++) {
-            registerImage(chapter, i, images.get(i));
         }
     }
 }

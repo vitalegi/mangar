@@ -6,11 +6,13 @@
 - Maven
 - Firefox browser
 - Firefox webdriver <https://github.com/mozilla/geckodriver/releases> in `PATH` variable
+- Chrome browser
+- Chrome webdriver <https://chromedriver.chromium.org/downloads> in `PATH` variable
 
 ```
 $env:M2_HOME = 'C:\a\software\apache-maven-3.8.7-java11'
 $env:JAVA_HOME = 'C:\Program Files\Java\jdk-11.0.16.1'
-$env:PATH = $env:M2_HOME + '\bin;' + $env:JAVA_HOME + '\bin;' + $env:PATH
+$env:PATH = $env:M2_HOME + '\bin;' + $env:JAVA_HOME + '\bin;' + 'C:\a\software\selenium\webdrivers\chromedriver-110.0.5481.77;C:\a\software\selenium\webdrivers\geckodriver-v0.32.2-win-aarch64;' + $env:PATH
 ```
 
 ## Compile

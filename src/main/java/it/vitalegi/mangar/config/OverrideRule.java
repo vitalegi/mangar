@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class Padding {
-
-    int length;
-
-    char character;
+public class OverrideRule {
+    String type;
+    String param;
+    String value;
 }

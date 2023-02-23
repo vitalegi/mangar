@@ -1,10 +1,19 @@
 package it.vitalegi.mangar.connector;
 
+import it.vitalegi.mangar.config.ChapterConfig;
+import it.vitalegi.mangar.config.Mangar;
+import it.vitalegi.mangar.config.OverrideRule;
+import it.vitalegi.mangar.config.Padding;
+import it.vitalegi.mangar.config.VolumeConfig;
+import it.vitalegi.mangar.service.StorageService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -12,8 +21,25 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @ExtendWith(MockitoExtension.class)
 public class ComikoConnectorTests {
 
-    @InjectMocks
     ComikoConnector comikoConnector;
+    Mangar config;
+    @Mock
+    StorageService storageService;
+
+    @BeforeEach
+    void init() {
+        config = new Mangar();
+        config.setEnabled(true);
+        config.setName("TEST");
+        config.setUri("");
+        config.setVolumes(new VolumeConfig());
+        config.getVolumes().setLeftPadding(new Padding(2, '0'));
+        config.getVolumes().setOverrideIds(Arrays.asList(new OverrideRule("IS_NULL", null, "35")));
+        config.setChapters(new ChapterConfig());
+        config.getChapters().setLeftPadding(new Padding(3, 'x'));
+        config.getChapters().setOverrideIds(Arrays.asList(new OverrideRule("IS_NULL", null, "xyz")));
+        comikoConnector = new ComikoConnector(config, storageService);
+    }
 
     @DisplayName("GIVEN chapter label is complete WHEN retrieving chapter id THEN chapter id is retrieved")
     @Test
@@ -48,7 +74,7 @@ public class ComikoConnectorTests {
     @DisplayName("GIVEN chapter name doesn't exists WHEN retrieving chapter name THEN null is retrieved")
     @Test
     void test_getChapterName_noName_shouldReturnNull() {
-        String value = comikoConnector.getChapterName((String)null);
+        String value = comikoConnector.getChapterName((String) null);
         assertNull(value);
     }
 
@@ -64,6 +90,6 @@ public class ComikoConnectorTests {
     @Test
     void test_getVolumeId_onlyChapterLabel_shouldReturnValue() {
         String volumeId = comikoConnector.getVolumeId("Chapter 316");
-        assertEquals(ComikoConnector.DEFAULT_VOLUME_ID, volumeId);
+        assertEquals("35", volumeId);
     }
 }

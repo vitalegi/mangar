@@ -2,8 +2,6 @@ package it.vitalegi.mangar.config;
 
 import lombok.Data;
 
-import java.net.URI;
-
 @Data
 public class Mangar {
     MangarType type;
@@ -14,8 +12,9 @@ public class Mangar {
     String uri;
 
     String outDir;
+    VolumeConfig volumes;
 
-    Padding leftPaddingVolumes;
-    Padding leftPaddingChapters;
-    Padding leftPaddingPages;
+    ChapterConfig chapters;
+
+    PageConfig pages;
 }

@@ -24,16 +24,29 @@ metrics:
 
 mangars:
   - type: COMIKO
-    name: Mahou Sensei Negima!
+    name: Mahou Sensei Negima
     enabled: true
     uri: https://comiko.net/series/38589
     outDir: ./negima
-    leftPaddingVolumes:
-      length: 2
-      character: '0'
-    leftPaddingChapters:
-      length: 3
-      character: '0'
-    leftPaddingPages:
-      length: 3
-      character: '0'
+    volumes:
+      leftPadding:
+        length: 2
+        character: '0'
+      overrideIds:
+        - type: IS_NULL
+          value: 36
+    chapters:
+      leftPadding:
+        length: 3
+        character: '0'
+      overrideIds:
+        - type: IS_NULL
+          value: 999
+        - type: EQUALS
+          param: 344v2
+          value: 344
+    pages:
+      leftPadding:
+        length: 3
+        character: '0'
+      overrideIds:

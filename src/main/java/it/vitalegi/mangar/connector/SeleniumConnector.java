@@ -4,7 +4,9 @@ import it.vitalegi.mangar.config.Mangar;
 import lombok.extern.log4j.Log4j2;
 import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -19,7 +21,7 @@ import java.util.List;
 @Log4j2
 public abstract class SeleniumConnector extends AbstractConnector {
 
-    FirefoxDriver driver;
+    WebDriver driver;
 
 
     public SeleniumConnector(Mangar config) {
@@ -28,7 +30,7 @@ public abstract class SeleniumConnector extends AbstractConnector {
 
     @Override
     public void execute() {
-        log.info("Start");
+        log.info("Start, config: {}", config);
         try {
             init();
             doExecute();
@@ -98,7 +100,9 @@ public abstract class SeleniumConnector extends AbstractConnector {
     }
 
     protected void init() {
-        driver = new FirefoxDriver();
+        //driver = new FirefoxDriver();
+        driver = new ChromeDriver();
+        log.info("Driver initialized");
     }
 
     protected WebDriverWait retry() {
