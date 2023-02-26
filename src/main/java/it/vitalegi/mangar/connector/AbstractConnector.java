@@ -1,10 +1,12 @@
 package it.vitalegi.mangar.connector;
 
+import it.vitalegi.mangar.config.IgnoreRule;
 import it.vitalegi.mangar.config.Mangar;
 import it.vitalegi.mangar.config.OverrideRule;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Log4j2
 public abstract class AbstractConnector {
@@ -15,6 +17,25 @@ public abstract class AbstractConnector {
     }
 
     public abstract void execute();
+
+    protected boolean accept(IgnoreRule rule, String url) {
+        if (rule.getType().equals("URL_EQUALS")) {
+            if (Stream.of(rule.getValue().split(",")).anyMatch(s -> s.equalsIgnoreCase(url))) {
+                log.info("Skip chapter, url {} to be ignored", url);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected boolean acceptChapter(List<IgnoreRule> rules, String url) {
+        for (IgnoreRule rule : rules) {
+            if (!accept(rule, url)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     protected String applyOverrideRulesToChapterId(String id) {
         return applyRules(config.getChapters().getOverrideIds(), id);

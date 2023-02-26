@@ -5,6 +5,7 @@ import it.vitalegi.mangar.config.Mangar;
 import it.vitalegi.mangar.config.OverrideRule;
 import it.vitalegi.mangar.config.Padding;
 import it.vitalegi.mangar.config.VolumeConfig;
+import it.vitalegi.mangar.service.StatusTrackerService;
 import it.vitalegi.mangar.service.StorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +26,8 @@ public class ComikoConnectorTests {
     Mangar config;
     @Mock
     StorageService storageService;
+    @Mock
+    StatusTrackerService statusTrackerService;
 
     @BeforeEach
     void init() {
@@ -38,7 +41,7 @@ public class ComikoConnectorTests {
         config.setChapters(new ChapterConfig());
         config.getChapters().setLeftPadding(new Padding(3, 'x'));
         config.getChapters().setOverrideIds(Arrays.asList(new OverrideRule("IS_NULL", null, "xyz")));
-        comikoConnector = new ComikoConnector(config, storageService);
+        comikoConnector = new ComikoConnector(config, storageService, statusTrackerService);
     }
 
     @DisplayName("GIVEN chapter label is complete WHEN retrieving chapter id THEN chapter id is retrieved")

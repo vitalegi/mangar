@@ -4,6 +4,7 @@ import it.vitalegi.mangar.config.Mangar;
 import it.vitalegi.mangar.model.Chapter;
 import it.vitalegi.mangar.model.Series;
 import it.vitalegi.mangar.model.Volume;
+import it.vitalegi.mangar.service.StatusTrackerService;
 import it.vitalegi.mangar.service.StorageService;
 import it.vitalegi.mangar.util.ImageUtil;
 import lombok.extern.log4j.Log4j2;
@@ -13,6 +14,7 @@ import org.openqa.selenium.WebElement;
 import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 @Log4j2
 public class ComikoConnector extends SeleniumConnector {
@@ -22,34 +24,43 @@ public class ComikoConnector extends SeleniumConnector {
     Series series;
     StorageService storageService;
 
-    public ComikoConnector(Mangar config, StorageService storageService) {
+    StatusTrackerService statusTrackerService;
+
+    public ComikoConnector(Mangar config, StorageService storageService, StatusTrackerService statusTrackerService) {
         super(config);
         series = new Series();
         this.storageService = storageService;
+        this.statusTrackerService = statusTrackerService;
     }
 
     @Override
     protected void doExecute() {
         get(config.getUri());
         WebElement chapters = getByClassUnique("main");
-        registerChapters(chapters);
+        registerVolumesAndChapters(chapters);
         storageService.createDirs(config, series);
 
-        series.getVolumes().forEach(this::downloadImages);
+        series.getVolumes().stream().sorted(Volume.comparator()).forEach(this::downloadImages);
     }
 
     protected void downloadImage(Volume volume, Chapter chapter, int index, WebElement imageTag) {
         String imageUrl = imageTag.getAttribute("src");
         Path path = storageService.getImagePath(config, volume, chapter, index, "png");
         log.info("Download in path {} image {}", path, imageUrl);
-        var image = ImageUtil.downloadImage(imageUrl);
-        ImageUtil.saveImage(image, "png", path);
-        log.info("Download completed.");
+        try {
+            var image = ImageUtil.downloadImage(imageUrl);
+            ImageUtil.saveImage(image, "png", path);
+            log.info("Download completed.");
+            statusTrackerService.downloadOk(volume.getId(), chapter.getId(), index, imageUrl);
+        } catch (RuntimeException e) {
+            statusTrackerService.downloadKo(volume.getId(), chapter.getId(), index, imageUrl);
+        }
     }
 
     protected void downloadImages(Volume volume) {
         log.debug("Download images of volume {}", volume.getId());
-        volume.getChapters().forEach(c -> downloadImages(volume, c));
+        volume.getChapters().stream().sorted(Chapter.comparator()).forEach(c -> downloadImages(volume, c));
+        statusTrackerService.volumeDone(volume.getId());
     }
 
     protected void downloadImages(Volume volume, Chapter chapter) {
@@ -57,10 +68,10 @@ public class ComikoConnector extends SeleniumConnector {
         get(chapter.getUrl());
         var viewer = findUnique(By.id("viewer"));
         var images = findAll(viewer, By.tagName("img"));
-        log.info("Chapter {} contains {} images", chapter.getId(), images.size());
-        for (int i = 0; i < images.size(); i++) {
-            downloadImage(volume, chapter, i, images.get(i));
-        }
+        log.info("Chapter {} contains {} images  ", chapter.getId(), images.size());
+        IntStream.range(0, images.size()).parallel().forEach(i -> downloadImage(volume, chapter, i, images.get(i)));
+        statusTrackerService.chapterDone(volume.getId());
+        statusTrackerService.status();
     }
 
     protected String getChapterId(WebElement chapter) {
@@ -118,6 +129,9 @@ public class ComikoConnector extends SeleniumConnector {
 
     protected void registerChapter(WebElement entry) {
         String url = entry.getAttribute("href");
+        if (!acceptChapter(config.getChapters().getIgnore(), url)) {
+            return;
+        }
         String volumeId = getVolumeId(entry);
         String chapterId = getChapterId(entry);
         String chapterName = getChapterName(entry);
@@ -126,7 +140,7 @@ public class ComikoConnector extends SeleniumConnector {
         log.info("Registered chapter {}", chapterId);
     }
 
-    protected void registerChapters(WebElement element) {
+    protected void registerVolumesAndChapters(WebElement element) {
         var elements = findAll(element, By.className("chapt"));
         log.info("elements {}", elements.size());
         for (int i = 0; i < elements.size(); i++) {

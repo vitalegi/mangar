@@ -45,6 +45,9 @@ mangars:
         - type: EQUALS
           param: 344v2
           value: 344
+      ignore:
+        - type: URL_EQUALS
+          value: https://comiko.net/chapter/691822,https://comiko.net/chapter/691827,https://comiko.net/chapter/691833,https://comiko.net/chapter/691839,https://comiko.net/chapter/691845,https://comiko.net/chapter/691851,https://comiko.net/chapter/691858,https://comiko.net/chapter/691864,https://comiko.net/chapter/691869,https://comiko.net/chapter/691875,https://comiko.net/chapter/691880,https://comiko.net/chapter/691886,https://comiko.net/chapter/691892,https://comiko.net/chapter/691898,https://comiko.net/chapter/691904,https://comiko.net/chapter/691923,https://comiko.net/chapter/691964,https://comiko.net/chapter/691968,https://comiko.net/chapter/691973,https://comiko.net/chapter/691979,https://comiko.net/chapter/691981,https://comiko.net/chapter/692001,https://comiko.net/chapter/691998,https://comiko.net/chapter/692008,https://comiko.net/chapter/692019,https://comiko.net/chapter/692031,https://comiko.net/chapter/692044,https://comiko.net/chapter/692153,https://comiko.net/chapter/692511,https://comiko.net/chapter/692517,https://comiko.net/chapter/692523,https://comiko.net/chapter/692529,https://comiko.net/chapter/692535,https://comiko.net/chapter/692541,https://comiko.net/chapter/692548,https://comiko.net/chapter/692554,https://comiko.net/chapter/692559,https://comiko.net/chapter/692577,https://comiko.net/chapter/692653,https://comiko.net/chapter/692659,https://comiko.net/chapter/692663,https://comiko.net/chapter/692668,https://comiko.net/chapter/692772,https://comiko.net/chapter/692766,https://comiko.net/chapter/692760,https://comiko.net/chapter/692755,https://comiko.net/chapter/692750,https://comiko.net/chapter/692743,https://comiko.net/chapter/692739,https://comiko.net/chapter/692733,https://comiko.net/chapter/692727,https://comiko.net/chapter/692723
     pages:
       leftPadding:
         length: 3

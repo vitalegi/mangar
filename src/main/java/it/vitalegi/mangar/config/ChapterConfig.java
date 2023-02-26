@@ -8,4 +8,5 @@ import java.util.List;
 public class ChapterConfig {
     Padding leftPadding;
     List<OverrideRule> overrideIds;
+    List<IgnoreRule> ignore;
 }

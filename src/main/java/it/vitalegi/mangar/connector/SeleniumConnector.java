@@ -7,7 +7,6 @@ import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.imageio.ImageIO;
@@ -22,7 +21,6 @@ import java.util.List;
 public abstract class SeleniumConnector extends AbstractConnector {
 
     WebDriver driver;
-
 
     public SeleniumConnector(Mangar config) {
         super(config);
@@ -42,6 +40,9 @@ public abstract class SeleniumConnector extends AbstractConnector {
     protected void close() {
         if (driver != null) {
             driver.close();
+        }
+        if (driver != null) {
+            driver.quit();
         }
     }
 

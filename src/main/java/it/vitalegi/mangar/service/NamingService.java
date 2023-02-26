@@ -4,6 +4,7 @@ import it.vitalegi.mangar.config.Mangar;
 import it.vitalegi.mangar.config.Padding;
 import it.vitalegi.mangar.model.Chapter;
 import it.vitalegi.mangar.model.Volume;
+import it.vitalegi.mangar.util.StringUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
@@ -39,15 +40,12 @@ public class NamingService {
     }
 
     protected String leftPadding(String str, Padding padding) {
-        while (str.length() < padding.getLength()) {
-            str = padding.getCharacter() + str;
-        }
-        return str;
+        return StringUtil.leftPadding(str, padding.getLength(), padding.getCharacter());
     }
 
     protected String sanitize(String str) {
-        return str.replaceAll("\\t", "").replaceAll("\\r", "").replaceAll("\\n", "").replaceAll("<", "")
-                  .replaceAll(">", "").replaceAll(":", "").replaceAll("\"", "").replaceAll("/", "")
+        return str.replaceAll("\\.", "").replaceAll("\\t", "").replaceAll("\\r", "").replaceAll("\\n", "")
+                  .replaceAll("<", "").replaceAll(">", "").replaceAll(":", "").replaceAll("\"", "").replaceAll("/", "")
                   .replaceAll("\\\\", "").replaceAll("\\|", "").replaceAll("\\?", "").replaceAll("\\*", "");
     }
 }
